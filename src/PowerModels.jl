@@ -58,6 +58,11 @@ include("core/admittance_matrix.jl")
 
 include("io/json.jl")
 
+include("chordal_extension/base.jl")
+include("chordal_extension/graphs.jl")
+include("chordal_extension/extension/cholesky.jl")
+include("chordal_extension/merge/merge.jl")
+
 include("form/iv.jl")
 
 include("form/acp.jl")
@@ -69,6 +74,7 @@ include("form/lpac.jl")
 include("form/bf.jl")
 include("form/wr.jl")
 include("form/wrm.jl")
+include("form/sdp.jl")
 include("form/shared.jl")
 
 include("prob/opb.jl")
@@ -81,6 +87,7 @@ include("prob/opf_iv.jl")
 include("prob/ots.jl")
 include("prob/tnep.jl")
 include("prob/test.jl")
+
 
 include("util/obbt.jl")
 include("util/flow_limit_cuts.jl")
