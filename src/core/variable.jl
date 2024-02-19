@@ -295,8 +295,10 @@ function variable_gen_power_imaginary(pm::AbstractPowerModel; nw::Int=nw_id_defa
         for (i, gen) in ref(pm, nw, :gen)
             if !isinf(gen["qmin"])
                 JuMP.set_lower_bound(qg[i], gen["qmin"])
+            end
             if !isinf(gen["qmax"])
                 JuMP.set_upper_bound(qg[i], gen["qmax"])
+            end
         end
     end
 
