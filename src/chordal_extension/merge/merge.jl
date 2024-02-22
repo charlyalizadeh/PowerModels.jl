@@ -39,7 +39,7 @@ Modify `maximal_cliques` by deleting the cliques at index `i` and `k` and adding
 Return the modified clique_tree where the cliques at index `i` and `k` are merged.
 """
 function _merge_clique!(i, k, clique, maximal_cliques, clique_tree)
-    neighbors = union(_neighbors(clique_tree, i), _neighbors(clique_tree, k))
+	neighbors = union(_neighbors(clique_tree, i; exclude=[i, k]), _neighbors(clique_tree, k; exclude=[i, k]))
     neighbors = map(n -> n - (n > i) - (n > k), neighbors)
 
     deleteat!(maximal_cliques, [i, k])
@@ -68,7 +68,9 @@ function _merge_molzahn!(cadj, maximal_cliques, clique_tree, L::Float64=0.1)
         i, k, cost = argmin(x -> x[3], costs)
 		clique = union(maximal_cliques[i], maximal_cliques[k])
         clique_tree = _merge_clique!(i, k, clique, maximal_cliques, clique_tree)
-		_make_subgraph_complete!(cadj, clique)
     end
+	for c in maximal_cliques
+		_make_subgraph_complete!(cadj, c)
+	end
 end
 _merge_cliques!(cadj, maximal_cliques, clique_tree, merge_alg::MolzahnMerge) = _merge_molzahn!(cadj, maximal_cliques, clique_tree, merge_alg.L)
