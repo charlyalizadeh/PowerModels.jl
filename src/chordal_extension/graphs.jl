@@ -82,7 +82,7 @@ If minweight == false, return the *maximum* weight spanning tree.
 
 Convention: start with node 1.
 """
-function _prim(A, minweight=false)
+function _prim_max(A)
     n = size(A, 1)
     candidate_edges = []
     unvisited = collect(1:n)
@@ -92,15 +92,14 @@ function _prim(A, minweight=false)
     while length(unvisited) > 1
         current_node = next_node
         filter!(node -> node != current_node, unvisited)
-
         neighbors = intersect(findall(x->x!=0, A[:, current_node]), unvisited)
         current_node_edges = [(current_node, i) for i in neighbors]
         append!(candidate_edges, current_node_edges)
         filter!(edge -> length(intersect(edge, unvisited)) == 1, candidate_edges)
         weights = [A[edge...] for edge in candidate_edges]
-        next_edge = minweight ? candidate_edges[indmin(weights)] : candidate_edges[argmax(weights)]
+        next_edge = candidate_edges[argmax(weights)]
         filter!(edge -> edge != next_edge, candidate_edges)
-        weight = minweight ? minimum(weights) : maximum(weights)
+        weight = maximum(weights)
         T[next_edge[1], next_edge[2]] = weight
         T[next_edge[2], next_edge[1]] = weight
         next_node = intersect(next_edge, unvisited)[1]
@@ -133,6 +132,7 @@ function _overlap_graph(groups)
     end
     return sparse(I, J, V, n, n)
 end
+
 
 """
     n = _neighbors(adj, v; exclude)
@@ -192,6 +192,7 @@ function _make_neighborhood_complete!(adj::SparseMatrixCSC, v::Int)
         end
     end
 end
+
 
 """
     pmdo = _perfect_minimum_degree_ordering(adj)

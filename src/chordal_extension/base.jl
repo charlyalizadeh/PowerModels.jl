@@ -53,7 +53,7 @@ computes the change in problem size for a proposed group merge.
 """
 function _problem_size(groups)
     nvars(n::Integer) = n*(2*n + 1)
-    A = _prim(_overlap_graph(groups))
+    A = _prim_max(_overlap_graph(groups))
     return sum(nvars.(Int.(nonzeros(A)))) + sum(nvars.(length.(groups)))
 end
 
@@ -69,6 +69,9 @@ of the bus with `bus_id` in the adjacency matrix.
 """
 function _chordal_extension(pm::AbstractPowerModel, nw::Int, extension_alg::AbstractChordalExtension)
     adj, lookup_index = _adjacency_matrix(pm, nw)
+	#lookup_index_inverse = Dict(v => k for (k, v) in lookup_index)
+	#order = sort(1:adj.n, by=x->lookup_index_inverse[x])
+	#adj = adj[order, order]
     cadj, p = _chordal_extension(adj, extension_alg)
     return cadj, lookup_index, p
 end
