@@ -76,13 +76,13 @@ end
 
 
 """
-    T = _prim(A, minweight=false)
+    T = _prim(A)
 Return minimum spanning tree adjacency matrix, given adjacency matrix.
 If minweight == false, return the *maximum* weight spanning tree.
 
 Convention: start with node 1.
 """
-function _prim_max(A)
+function _prim(A)
     n = size(A, 1)
     candidate_edges = []
     unvisited = collect(1:n)
