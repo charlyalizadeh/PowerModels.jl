@@ -1018,7 +1018,7 @@ end
         pm = instantiate_model("../test/data/matpower/case14.m", SparseSDPWRMPowerModel, PowerModels.build_opf)
         @test check_variable_bounds(pm.model)
     end
-    @testset "passing in decomposition" begin
+    @testset "passing in cholesky decomposition with AMD ordering" begin
         # too slow for unit tests
         #data = PowerModels.parse_file("../test/data/matpower/case14.m")
         data = PowerModels.parse_file("../test/data/pti/case5_alc.raw")
@@ -1027,7 +1027,28 @@ end
 
         nw = collect(nw_ids(pm))[1]
 
-        cadj, lookup_index, sigma = PowerModels._chordal_extension(pm, nw)
+        cadj, lookup_index, sigma = PowerModels._chordal_extension(pm, nw, CholeskyExtension())
+        cliques = PowerModels._maximal_cliques(cadj)
+        lookup_bus_index = Dict((reverse(p) for p = pairs(lookup_index)))
+        groups = [[lookup_bus_index[gi] for gi in g] for g in cliques]
+        @test PowerModels._problem_size(groups) == 83
+
+        pm.ext[:SDconstraintDecomposition] = PowerModels._SDconstraintDecomposition(groups, lookup_index, sigma)
+
+        PowerModels.build_opf(pm)
+        result = optimize_model!(pm, optimizer=sdp_solver)
+
+        @test result["termination_status"] == OPTIMAL
+        @test isapprox(result["objective"], 1005.31; atol = 1e0)
+    end
+    @testset "passing in cholesky decomposition with MD ordering" begin
+        data = PowerModels.parse_file("../test/data/pti/case5_alc.raw")
+        pm = InfrastructureModels.InitializeInfrastructureModel(SparseSDPWRMPowerModel, data, PowerModels._pm_global_keys, PowerModels.pm_it_sym)
+        PowerModels.ref_add_core!(pm.ref)
+
+        nw = collect(nw_ids(pm))[1]
+
+        cadj, lookup_index, sigma = PowerModels._chordal_extension(pm, nw, MinimumDegreeExtension())
         cliques = PowerModels._maximal_cliques(cadj)
         lookup_bus_index = Dict((reverse(p) for p = pairs(lookup_index)))
         groups = [[lookup_bus_index[gi] for gi in g] for g in cliques]

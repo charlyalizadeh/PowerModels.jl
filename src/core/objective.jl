@@ -137,6 +137,7 @@ function expression_pg_cost(pm::AbstractPowerModel; report::Bool=true)
                 cost_rev = reverse(gen["cost"])
 
                 pg_cost[i] = _polynomial_cost_expression(pm, pg_terms, cost_rev, nw=n, id=i, var_name="pg")
+				println("pg_cost[$i] = $(pg_cost[i])")
             else
                 Memento.error(_LOGGER, "Only cost models of types 1 and 2 are supported at this time, given cost model type of $(model) on generator $(i)")
             end
@@ -226,6 +227,7 @@ end
 # note that `cost_terms` should be providing in ascending order (the reverse of the Matpower spec.)
 function _polynomial_cost_expression(pm::AbstractPowerModel, x_list::Array{JuMP.VariableRef}, cost_terms; nw=0, id=1, var_name="x")
     x = sum(x_list)
+	println("(1) COST TERMS: $(cost_terms)")
     if length(cost_terms) == 0
         return 0.0
     elseif length(cost_terms) == 1
@@ -243,6 +245,7 @@ end
 # note that `cost_terms` should be providing in ascending order (the reverse of the Matpower spec.)
 function _polynomial_cost_expression(pm::AbstractConicModels, x_list::Array{JuMP.VariableRef}, cost_terms; nw=0, id=1, var_name="x")
     x = sum(x_list)
+	println("(2) COST TERMS: $(cost_terms)")
     if length(cost_terms) == 0
         return 0.0
     elseif length(cost_terms) == 1
@@ -279,6 +282,7 @@ end
 # note that `cost_terms` should be providing in ascending order (the reverse of the Matpower spec.)
 function _polynomial_cost_expression(pm::AbstractPowerModel, x_list, cost_terms; nw=0, id=1, var_name="x")
     x = JuMP.@expression(pm.model, sum(x for x in x_list))
+	println("(3) COST TERMS: $(cost_terms)")
     if length(cost_terms) == 0
         return 0.0
     elseif length(cost_terms) == 1
